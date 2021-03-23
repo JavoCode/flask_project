@@ -4,9 +4,13 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
+import os
+
+from werkzeug.utils import secure_filename
 
 from app import app
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
+from .forms import PhotoForm, PropertyForm, PROPERTY_TYPE
 
 
 ###
@@ -25,6 +29,51 @@ def about():
     return render_template('about.html', name="Mary Jane")
 
 
+@app.route('/property', methods=['GET', 'POST'])
+def property_form():
+    propertyForm = PropertyForm()
+
+    if request.method == 'POST':
+        if propertyForm.validate_on_submit():
+
+            propertyTitle = propertyForm.propertyTitle.data
+            location = propertyForm.location.data
+            description = propertyForm.description.data
+            roomsNumber = propertyForm.roomsNumber.data
+            bathroomNumber = propertyForm.bathroomNumber.data
+            price = propertyForm.price.data
+            prropertyType = dict(PROPERTY_TYPE).get(propertyForm.propertyType.data)
+            photo = propertyForm.photo.data
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(
+                app.config['UPLOAD_FOLDER'], filename
+            ))
+
+            flash('You have successfully filled out the form', 'success')
+
+        flash_errors(propertyForm)
+    return render_template('property_form.html', form=propertyForm)
+
+
+@app.route('/photo-upload', methods=['GET', 'POST'])
+def photo_upload():
+    photoform = PhotoForm()
+
+    if request.method == 'POST' and photoform.validate_on_submit():
+        photo = photoform.photo.data  # we could also use request.files['photo']
+        description = photoform.description.data
+
+        filename = secure_filename(photo.filename)
+        photo.save(os.path.join(
+            app.config['UPLOAD_FOLDER'], filename
+        ))
+
+        return render_template('display_photo.html', filename=filename, description=description)
+
+    flash_errors(photoform)
+    return render_template('photo_upload.html', form=photoform)
+
+
 ###
 # The functions below should be applicable to all Flask apps.
 ###
@@ -37,6 +86,7 @@ def flash_errors(form):
                 getattr(form, field).label.text,
                 error
             ), 'danger')
+
 
 @app.route('/<file_name>.txt')
 def send_text_file(file_name):
@@ -64,4 +114,4 @@ def page_not_found(error):
 
 
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0",port="8080")
+    app.run(debug=True, host="0.0.0.0", port="8080")
