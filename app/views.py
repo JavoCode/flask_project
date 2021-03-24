@@ -5,17 +5,24 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 import os
+import base64
 
 from werkzeug.utils import secure_filename
 
 from app import app
 from flask import render_template, request, redirect, url_for, flash
-from .forms import PhotoForm, PropertyForm, PROPERTY_TYPE
+from .forms import PropertyForm, PROPERTY_TYPE
+from app import db
+from app.models import Listing
+import psycopg2
 
 
 ###
 # Routing for your application.
 ###
+
+# connecting to database to read
+
 
 @app.route('/')
 def home():
@@ -29,25 +36,41 @@ def about():
     return render_template('about.html', name="Mary Jane")
 
 
+@app.route('/properties', methods=['GET'])
+def display_properties():
+    properties = db.session.query(Listing).all()
+    return render_template('properties.html', data=properties)
+
+
+@app.route('/property/<propertyid>')
+def getpropertyById(propertyid):
+    propertyFromId = db.session.query(Listing).get(propertyid)
+    return render_template('property.html', prop=propertyFromId)
+
+
 @app.route('/property', methods=['GET', 'POST'])
 def property_form():
     propertyForm = PropertyForm()
 
     if request.method == 'POST':
         if propertyForm.validate_on_submit():
-
             propertyTitle = propertyForm.propertyTitle.data
             location = propertyForm.location.data
             description = propertyForm.description.data
             roomsNumber = propertyForm.roomsNumber.data
             bathroomNumber = propertyForm.bathroomNumber.data
             price = propertyForm.price.data
-            prropertyType = dict(PROPERTY_TYPE).get(propertyForm.propertyType.data)
+            propertyType = dict(PROPERTY_TYPE).get(propertyForm.propertyType.data)
             photo = propertyForm.photo.data
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(
                 app.config['UPLOAD_FOLDER'], filename
             ))
+            record = Listing(propertyTitle, location, description, roomsNumber, bathroomNumber, propertyType, price,
+                             photo.filename)
+
+            db.session.add(record)
+            db.session.commit()
 
             flash('You have successfully filled out the form', 'success')
 

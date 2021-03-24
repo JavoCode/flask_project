@@ -1,3 +1,25 @@
 body {
     padding-top: 50px;
 }
+
+.container-properties {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-gap: 5px;
+
+}
+
+.property-container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-gap: 1%;
+}
+#display-img {
+    width: 100%;
+
+}
+
+.svg-bedbath {
+    display: grid;
+    grid-template-columns: auto auto;
+}

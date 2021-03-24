@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="property-container p-lg-5">
+ <img id="display-img" src="../static/uploads/{{ prop.photo }}" alt="Card image cap">
+    <div class="card property-card ">
+        <div class="card-block p-sm-4">
+            <h4 class="card-title">{{ prop.property_title }}</h4>
+            <div>
+                <span class="badge badge-primary">{{ prop.price }}</span>
+                <span class="badge badge-warning">{{ prop.property_type }}</span>
+            </div>
+            <p class="card-text font-weight-bold">{{ prop.description }}</p>
+            <div class="svg-bedbath">
+                <p class="card-text"><img src="../static/svg/moon-stars.svg"> {{ prop.rooms_number }} Bedrooms</p>
+                <p class="card-text"><img src="../static/svg/droplet.svg"> {{ prop.bathroom_number }} Bathrooms</p>
+            </div>
+            <p class="card-text"><img src="../static/svg/geo-alt.svg">{{ prop.location }}</p>
+            <button type="button" class="btn btn-success">Email Realtor</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
