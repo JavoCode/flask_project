@@ -73,28 +73,11 @@ def property_form():
             db.session.commit()
 
             flash('You have successfully filled out the form', 'success')
+            return redirect(url_for('display_properties'))
 
         flash_errors(propertyForm)
     return render_template('property_form.html', form=propertyForm)
 
-
-@app.route('/photo-upload', methods=['GET', 'POST'])
-def photo_upload():
-    photoform = PhotoForm()
-
-    if request.method == 'POST' and photoform.validate_on_submit():
-        photo = photoform.photo.data  # we could also use request.files['photo']
-        description = photoform.description.data
-
-        filename = secure_filename(photo.filename)
-        photo.save(os.path.join(
-            app.config['UPLOAD_FOLDER'], filename
-        ))
-
-        return render_template('display_photo.html', filename=filename, description=description)
-
-    flash_errors(photoform)
-    return render_template('photo_upload.html', form=photoform)
 
 
 ###

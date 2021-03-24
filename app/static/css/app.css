@@ -23,3 +23,8 @@ body {
     display: grid;
     grid-template-columns: auto auto;
 }
+.grid-container{
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 5%;
+}
